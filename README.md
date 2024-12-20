@@ -14,7 +14,7 @@ Ideas for bonus points:
     DONE---Login with Github for user authentication/authorization
        NOTE---The protected routes for React Router aren't really implemented, I realized when I was almost done that people who are not the user will still need to view a playlist without being logged in
 
-Future updates:
+## Future updates:
 
 - Add to multiple playlists at once (checkbox)
 - Fix protected routes
