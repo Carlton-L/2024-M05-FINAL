@@ -1,14 +1,22 @@
-import { useEffect, useState } from 'react';
-import { supabase } from './client';
+import { BrowserRouter, Routes, Route } from 'react-router';
+import { UserContextProvider } from './context/UserContextProvider';
+import MainLayout from './layout/MainLayout';
+import ProtectedRoute from './components/ProtectedRoute';
+import Home from './pages/Home';
+import SearchResults from './pages/SearchResults';
+import VideoPlayerLayout from './layout/VideoPlayerLayout';
+import PlaylistPlayerLayout from './layout/PlaylistPlayerLayout';
 import './App.css';
 
 // Functional requirements:
 
-//     Autoplay next, the next video in the queue starts playing once the current one is finished
-//     Users can search for videos and add them to the playlist
-//     There's a different url for each playlist that users can share
-//     Remove a video from the playlist
-//     Persist playlist to api and poll changes from others
+//     DONE---Autoplay next, the next video in the queue starts playing once the current one is finished
+//     DONE---Users can search for videos and add them to the playlist
+//     DONE---There's a different url for each playlist that users can share
+//     DONE---Remove a video from the playlist
+//        NOTE---Can only remove video from playlist if you are creator of the playlist
+//     DONE---Persist playlist to api and poll changes from others
+//        NOTE---Can only test this with Postman
 
 // Ideas for bonus points:
 
@@ -18,72 +26,52 @@ import './App.css';
 
 // Other
 
-//     --Users can reorder the playlist
+//     Users can reorder the playlist
 //     Use a realtime data store like Supabase
 //     Import YouTube playlist
 //     Add your own features
+//
+//     DONE---Create new playlist from video
+//     DONE---Login with Github for user authentication/authorization
+//        NOTE---The protected routes for React Router aren't really implemented, I realized when I was almost done that people who are not the user will still need to view a playlist without being logged in
+//
+//     Shuffle Playlist
+//     Loop Playlist
 // User, Session
-
-// Each playlist has a user
-// Can be private
-
-// Client id Ov23liFcy66IUfze6tVj
 
 // Callback URL https://cdjzuzmndmrccqykrtfu.supabase.co/auth/v1/callback
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [userError, setUserError] = useState(null);
-  useEffect(() => {
-    checkUser();
-
-    window.addEventListener('hashchange', () => checkUser());
-  }, []);
-
-  async function checkUser() {
-    /* if a user is signed in, update local state */
-    const user = await supabase.auth.getUser();
-    setUser(user.data.user);
-  }
-  async function signInWithGithub() {
-    /* authenticate with GitHub */
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-    });
-    if (error) {
-      setUserError(error);
-    } else {
-      setUserError(null);
-    }
-  }
-  async function signOut() {
-    /* sign the user out */
-    await supabase.auth.signOut();
-    setUser(null);
-  }
-  // if (user) {
-  //   return (
-  //     <div className='App'>
-  //       <h1>Hello, {user.email}</h1>
-  //       <button onClick={signOut}>Sign out</button>
-  //     </div>
-  //   );
-  // }
-
-  if (user === null) {
-    return (
-      <>
-        <h1>Hello, please sign in!</h1>
-        <button onClick={signInWithGithub}>Sign In</button>
-      </>
-    );
-  }
-
   return (
-    <>
-      <button onClick={signOut}>Sign Out</button>
-      <button onClick={() => console.log(user)}>Check User</button>
-    </>
+    <UserContextProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<MainLayout />}>
+            <Route index element={<Home />} />
+            <Route
+              path='/video/:videoId'
+              element={
+                <ProtectedRoute>
+                  <VideoPlayerLayout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/playlist/:playlistId'
+              element={<PlaylistPlayerLayout />}
+            />
+            <Route
+              path='/search/:query'
+              element={
+                <ProtectedRoute>
+                  <SearchResults />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </UserContextProvider>
   );
 }
 
