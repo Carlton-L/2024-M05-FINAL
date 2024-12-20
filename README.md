@@ -18,6 +18,7 @@ Ideas for bonus points:
 
 - Add to multiple playlists at once (checkbox)
 - Fix protected routes
+- Deal with empty playlists(you have deleted all videos) and deleting playlists
 - Add styling
 - Code refactor
   - State management (currently using Context, useState, prop drilling, params, etc. randomly)
